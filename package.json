@@ -1,0 +1,20 @@
+{
+  "name": "Transactr",
+  "version": "1.0.0",
+  "description": "Transaction Manager",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mike-evlantev/Transactr.git"
+  },
+  "keywords": [],
+  "author": "Mikhail Evlantev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mike-evlantev/Transactr/issues"
+  },
+  "homepage": "https://github.com/mike-evlantev/Transactr#readme"
+}
