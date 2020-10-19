@@ -37,52 +37,14 @@ router.get("/:id", auth, async (req, res) => {
     // Verify user owns document
     if (document.user.toString() !== req.user.id)
       return res.status(401).json({ msg: "Not authorized" });
-    
-    // Get associated transaction
-    const transaction = await Transaction.findById(document.transaction);
 
-    // Generate pdf
-    let doc = new PDFDocument({margin: 50, bufferPages: true});
+    // Generate and email pdf
+    await emailPdf(document);
 
     // Send with response to download
     //res.contentType("application/pdf");    
     //doc.pipe(res);
     
-    // Email as attachment
-    let buffers = [];
-    doc.on('data', buffers.push.bind(buffers));
-    doc.on('end', () => {
-
-        let pdfData = Buffer.concat(buffers).toString('base64');
-
-        // ... now send pdfData as attachment ...
-        const msg = {
-          to: "mikeev21@gmail.com",
-          from: "transactions@acme.com",
-          subject: "Transaction Attached",
-          text: `Attached please find transaction ${document.name}`,
-          attachments:[{
-            content: pdfData,
-            filename: document.name,
-            type: "application/pdf",
-            disposition: "attachment"
-          }]
-        };
-    
-        sgMail
-          .send(msg)
-          .catch(err => {
-            console.error(err.message);
-            res.status(500).send("SendGrid Error");
-          });
-    });
-
-    generateHeader(doc);
-    generateCustomerInformation(doc, transaction);
-    generateTransactionDetails(doc, transaction);
-    generateFooter(doc, transaction);
-
-    doc.end();
     res.status(200).json({msg: "Email sent"});
   } catch (error) {
     console.error(error.message);
@@ -126,6 +88,8 @@ router.post(
       });
 
       const document = await newDocument.save();
+      // Generate and email pdf
+      await emailPdf(document);
       res.json(document);
     } catch (error) {
       console.error(error.message);
@@ -241,6 +205,46 @@ function generateTransactionDetails(doc, transaction) {
   }
 }
 
-// function emailPdf(doc){
+const emailPdf = async (document) => {
+  try {
+   // Get associated transaction
+    const transaction = await Transaction.findById(document.transaction);
+    let doc = new PDFDocument({margin: 50, bufferPages: true});
+    let buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+
+      let pdfData = Buffer.concat(buffers).toString('base64');
+
+      // ... now send pdfData as attachment ...
+      const msg = {
+        to: "mikeev21@gmail.com",
+        from: "transactions@acme.com",
+        subject: "Transaction Attached",
+        text: `Attached please find transaction ${document.name}`,
+        attachments:[{
+          content: pdfData,
+          filename: document.name,
+          type: "application/pdf",
+          disposition: "attachment"
+        }]
+      };
   
-// }
+      sgMail
+        .send(msg)
+        .catch(err => {
+          console.error(err.message);
+          //res.status(500).send("SendGrid Error");
+        });
+    });
+
+    generateHeader(doc);
+    generateCustomerInformation(doc, transaction);
+    generateTransactionDetails(doc, transaction);
+    generateFooter(doc, transaction);
+
+    doc.end(); 
+  } catch (error) {
+    console.error(error.message);
+  }
+}
