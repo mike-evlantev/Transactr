@@ -21,13 +21,15 @@ export default (state, action) => {
     case GET_TRANSACTION:
       return {
         ...state,
-        current: action.payload,
+        transaction: action.payload,
         loading: false
       };
     case ADD_TRANSACTION:
       return {
+        // ...state,
+        // transactions: [action.payload, ...state.transactions],
         ...state,
-        transactions: [action.payload, ...state.transactions],
+        transaction: action.payload,
         loading: false
       };
     case UPDATE_TRANSACTION:
@@ -56,12 +58,12 @@ export default (state, action) => {
     case SET_CURRENT:
       return {
         ...state,
-        current: action.payload
+        transaction: action.payload
       };
     case CLEAR_CURRENT:
       return {
         ...state,
-        current: null
+        transaction: null
       };
     case TRANSACTION_ERROR:
       return {

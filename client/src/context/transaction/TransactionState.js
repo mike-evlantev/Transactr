@@ -8,9 +8,9 @@ import {
   ADD_TRANSACTION,
   UPDATE_TRANSACTION,
   DELETE_TRANSACTION,
-  SET_CURRENT,
-  CLEAR_CURRENT,
-  CLEAR_TRANSACTIONS,
+  // SET_CURRENT,
+  // CLEAR_CURRENT,
+  // CLEAR_TRANSACTIONS,
   TRANSACTION_ERROR
 } from "../types";
 
@@ -31,8 +31,8 @@ const TransactionState = props => {
     // detail3: "",
     // detail4: "",
     // detail5: "",
-    transactions: null,
-    current: null,
+    //transactions: null,
+    transaction: null,
     error: null
   };
   const [state, dispatch] = useReducer(transactionReducer, initialState);
@@ -104,19 +104,19 @@ const TransactionState = props => {
   };
 
   // Set current transaction
-  const setCurrent = transaction => {
-    dispatch({ type: SET_CURRENT, payload: transaction });
-  };
+  // const setCurrent = transaction => {
+  //   dispatch({ type: SET_CURRENT, payload: transaction });
+  // };
 
   // Clear current transaction
-  const clearCurrent = () => {
-    dispatch({ type: CLEAR_CURRENT });
-  };
+  // const clearCurrent = () => {
+  //   dispatch({ type: CLEAR_CURRENT });
+  // };
 
   // Clear transactions
-  const clearTransactions = () => {
-    dispatch({ type: CLEAR_TRANSACTIONS });
-  };
+  // const clearTransactions = () => {
+  //   dispatch({ type: CLEAR_TRANSACTIONS });
+  // };
 
   return (
     <TransactionContext.Provider
@@ -136,17 +136,17 @@ const TransactionState = props => {
         // detail3: state.detail3,
         // detail4: state.detail4,
         // detail5: state.detail5,
-        transactions: state.transactions,
-        current: state.current,
+        transaction: state.transaction,
+        // current: state.current,
         error: state.error,
         getTransactions,
         getTransaction,
         addTransaction,
         updateTransaction,
         deleteTransaction,
-        setCurrent,
-        clearCurrent,
-        clearTransactions
+        // setCurrent,
+        // clearCurrent,
+        // clearTransactions
       }}
     >
       {props.children}
