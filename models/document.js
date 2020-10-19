@@ -23,6 +23,10 @@ const DocumentSchema = new Schema({
       required: true,
       type: String,
   },
+  recipient: {
+    required: false,
+    type: String,
+  },
   date: {
     type: Date,
     default: Date.now
