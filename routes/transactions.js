@@ -9,6 +9,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const Document = require("../models/document");
 const Transaction = require("../models/transaction");
+const User = require("../models/user");
 
 // @route       GET api/transactions
 // @desc        Get all users transactions
@@ -121,6 +122,7 @@ router.post(
      } = req.body;
 
     try {
+      const user = await User.findById(req.user.id).select("-password");
       const newTransaction = new Transaction({
         user: req.user.id,
         firstName,
@@ -137,16 +139,18 @@ router.post(
         detail5,
       });
       const transaction = await newTransaction.save();
-
+      
       // Create document for transaction
       let newDocument = new Document({
         user: req.user.id,
         transaction: transaction._id,
         name: documentName,  
         description: documentDescription,
-        recipient: req.user.email, 
+        recipient: user.email, 
         format: "pdf"
       });
+
+      
 
       const document = await newDocument.save();
       // Generate and email pdf
