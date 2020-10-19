@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 const auth = require("../middleware/auth");
 const { check, validationResult } = require("express-validator");
+const PDFDocument = require("pdfkit");
+require("dotenv").config();
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+const Document = require("../models/document");
 const Transaction = require("../models/transaction");
 
 // @route       GET api/transactions
@@ -85,6 +90,12 @@ router.post(
       check("detail5", "Detail 5 is required")
         .not()
         .isEmpty(),
+      check("documentName", "Document name is required")
+        .not()
+        .isEmpty(),
+      check("documentDescription", "Document description is required")
+        .not()
+        .isEmpty(),
     ]
   ],
   async (req, res) => {
@@ -104,7 +115,9 @@ router.post(
       detail2,
       detail3,
       detail4,
-      detail5
+      detail5,
+      documentName,
+      documentDescription,
      } = req.body;
 
     try {
@@ -121,10 +134,25 @@ router.post(
         detail2,
         detail3,
         detail4,
-        detail5
+        detail5,
       });
       const transaction = await newTransaction.save();
-      res.json(transaction);
+
+      // Create document for transaction
+      let newDocument = new Document({
+        user: req.user.id,
+        transaction: transaction._id,
+        name: documentName,  
+        description: documentDescription,
+        recipient: req.user.email, 
+        format: "pdf"
+      });
+
+      const document = await newDocument.save();
+      // Generate and email pdf
+      await emailPdf(document);
+
+      res.json({transaction, document});
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Server Error");
@@ -204,3 +232,106 @@ router.delete("/:id", auth, async (req, res) => {
 });
 
 module.exports = router;
+
+function generateHeader(doc) {
+  try {
+    doc
+    .fontSize(10)
+    .text("Transactr").moveDown()
+    .text("123 Main Street").moveDown()
+    .text("New York, NY, 10025").moveDown(); 
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+function generateFooter(doc, transaction) {
+  try {
+    doc
+      .fontSize(7)
+      .text(
+        `Transaction prepared by ${transaction.user} on ${transaction.date}`,
+        50,
+        780,
+        { align: "center", width: 500 }
+      );
+  } catch (error) {
+    console.error(error.message);
+  }  
+}
+
+function generateCustomerInformation(doc, transaction) {
+  try {
+    doc
+    .moveDown()
+    .text("Customer Information").moveDown()
+    .text(transaction.company).moveDown()
+
+    .text(`${transaction.firstName} ${transaction.lastName}`).moveDown()
+    .text(`${transaction.address1} ${transaction.address2}`).moveDown()
+    .text(`${transaction.city}, ${transaction.state}, ${transaction.zip}`).moveDown()
+    .text(transaction.phone).moveDown()
+    .text(transaction.email).moveDown();
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+function generateTransactionDetails(doc, transaction) {
+  try {
+    doc
+    .moveDown()
+    .text("Transaction Details").moveDown()
+    .text(`Detail 1: ${transaction.detail1}`).moveDown()
+    .text(`Detail 2: ${transaction.detail2}`).moveDown()
+    .text(`Detail 3: ${transaction.detail3}`).moveDown()
+    .text(`Detail 4: ${transaction.detail4}`).moveDown()
+    .text(`Detail 5: ${transaction.detail5}`).moveDown();
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+const emailPdf = async (document) => {
+  try {
+   // Get associated transaction
+    const transaction = await Transaction.findById(document.transaction);
+    let doc = new PDFDocument({margin: 50, bufferPages: true});
+    let buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => {
+
+      let pdfData = Buffer.concat(buffers).toString('base64');
+
+      // ... now send pdfData as attachment ...
+      const msg = {
+        to: document.recipient,
+        from: "transactions@transactr.gg",
+        subject: "Transaction Attached",
+        text: `Attached please find transaction ${document.name}`,
+        attachments:[{
+          content: pdfData,
+          filename: document.name,
+          type: "application/pdf",
+          disposition: "attachment"
+        }]
+      };
+  
+      sgMail
+        .send(msg)
+        .catch(err => {
+          console.error(err.message);
+          //res.status(500).send("SendGrid Error");
+        });
+    });
+
+    generateHeader(doc);
+    generateCustomerInformation(doc, transaction);
+    generateTransactionDetails(doc, transaction);
+    generateFooter(doc, transaction);
+
+    doc.end(); 
+  } catch (error) {
+    console.error(error.message);
+  }
+}
