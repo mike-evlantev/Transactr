@@ -4,30 +4,28 @@ import TransactionContext from "../../context/transaction/transactionContext";
 const TransactionForm = () => {
   const transactionContext = useContext(TransactionContext);
 
-  const { addTransaction, updateTransaction, clearCurrent, current } = transactionContext;
+  const { addTransaction, current } = transactionContext;
 
   useEffect(() => {
-    if (current !== null) {
-      setTransaction(current);
-    } else {
-      setTransaction({
-        company: "",
-        firstName: "",
-        lastName: "",
-        address1: "",
-        address2: "",
-        city: "",
-        state: "",
-        zip: "",
-        phone: "",
-        email: "",    
-        detail1: "",
-        detail2: "",
-        detail3: "",
-        detail4: "",
-        detail5: "",
-      });
-    }
+    setTransaction({
+      company: "",
+      firstName: "",
+      lastName: "",
+      address1: "",
+      address2: "",
+      city: "",
+      state: "",
+      zip: "",
+      phone: "",
+      email: "",    
+      detail1: "",
+      detail2: "",
+      detail3: "",
+      detail4: "",
+      detail5: "",
+      documentName: "",
+      documentDescription: "",
+    });
   }, [transactionContext, current]);
 
   const [transaction, setTransaction] = useState({
@@ -46,6 +44,8 @@ const TransactionForm = () => {
     detail3: "",
     detail4: "",
     detail5: "",
+    documentName: "",
+    documentDescription: "",
   });
 
   const { 
@@ -64,6 +64,8 @@ const TransactionForm = () => {
     detail3,
     detail4,
     detail5,
+    documentName,
+    documentDescription
   } = transaction;
 
   const onChange = e =>
@@ -71,21 +73,35 @@ const TransactionForm = () => {
 
   const onSubmit = e => {
     e.preventDefault();
-    if (current === null) {
-      addTransaction(transaction)
-    } else {
-      updateTransaction(transaction)
-    }
+    addTransaction(transaction);
     clearAll();
   };
 
   const clearAll = () => {
-    clearCurrent();
+    setTransaction({
+      company: "",
+      firstName: "",
+      lastName: "",
+      address1: "",
+      address2: "",
+      city: "",
+      state: "",
+      zip: "",
+      phone: "",
+      email: "",    
+      detail1: "",
+      detail2: "",
+      detail3: "",
+      detail4: "",
+      detail5: "",
+      documentName: "",
+      documentDescription: "",
+    });
   };
 
   return (
     <div className="card border-dark mb-3">
-      <div className="card-header">{current ? "Edit" : "Add"} Transaction</div>
+      <div className="card-header">{current ? "Edit" : "Add"} Transaction (All Fields Required)</div>
       <div className="card-body">
         <form onSubmit={onSubmit}>
           <label>Customer Information</label>
@@ -245,10 +261,31 @@ const TransactionForm = () => {
             onChange={onChange}
           />
         </div>
+        <label>Document</label>
+          <div className="form-group">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Name"
+              name="documentName"
+              value={documentName}
+              onChange={onChange}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Description"
+              name="documentDescription"
+              value={documentDescription}
+              onChange={onChange}
+            />
+          </div>
           <div>
             <input
               type="submit"
-              value={current ? "Update Transaction" : "Add Transaction"}
+              value="Send PDF"
               className="btn btn-outline-primary float-right"
             />
           </div>
