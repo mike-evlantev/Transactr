@@ -1,0 +1,40 @@
+{
+  "name": "transactr",
+  "version": "1.0.0",
+  "description": "Transaction Manager",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "client": "npm start --prefix client",
+    "clientinstall": "npm install --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mike-evlantev/Transactr.git"
+  },
+  "keywords": [],
+  "author": "Mikhail Evlantev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mike-evlantev/Transactr/issues"
+  },
+  "homepage": "https://github.com/mike-evlantev/Transactr#readme",
+  "dependencies": {
+    "@sendgrid/mail": "^7.3.0",
+    "bcryptjs": "^2.4.3",
+    "config": "^3.3.2",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.6.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.10.9",
+    "pdfkit": "^0.11.0",
+    "uuid": "^8.3.1"
+  },
+  "devDependencies": {
+    "concurrently": "^5.3.0",
+    "nodemon": "^2.0.5"
+  }
+}
