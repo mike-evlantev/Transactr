@@ -2,14 +2,14 @@ import React, { Fragment, useContext } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import AuthContext from "../../context/auth/authContext";
-import TransactionContext from "../../context/transaction/transactionContext";
+//import TransactionContext from "../../context/transaction/transactionContext";
 
 const Navbar = ({ title, icon }) => {
   const { isAuthenticated, logout, user } = useContext(AuthContext);
-  const { clearTransactions } = useContext(TransactionContext);
+  //const { clearTransactions } = useContext(TransactionContext);
   const handleLogout = () => {
     logout();
-    clearTransactions();
+    //clearTransactions();
   };
   const authLinks = (
     <Fragment>
