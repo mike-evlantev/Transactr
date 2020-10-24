@@ -19,6 +19,8 @@ const Register = props => {
     e.preventDefault();
     if (name === "" || email === "" || password === "") {
       setAlert("Please enter all fields", "danger");
+    } else if (password.length < 8) {
+      setAlert("Passwords needs to be at least 8 characters long", "danger");
     } else if (password !== password2) {
       setAlert("Passwords do not match", "danger");
     } else {
