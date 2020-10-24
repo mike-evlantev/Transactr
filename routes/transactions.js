@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require('express');
 const router = express.Router();
 const auth = require("../middleware/auth");
@@ -148,9 +149,7 @@ router.post(
         description: documentDescription,
         recipient: user.email, 
         format: "pdf"
-      });
-
-      
+      });      
 
       const document = await newDocument.save();
       // Generate and email pdf
@@ -240,10 +239,16 @@ module.exports = router;
 function generateHeader(doc) {
   try {
     doc
-    .fontSize(10)
-    .text("Transactr").moveDown()
-    .text("123 Main Street").moveDown()
-    .text("New York, NY, 10025").moveDown(); 
+      .image(path.join(__dirname, '../client/public/images/heart-regular.png'), 50, 51, {scale: 0.065});
+
+    doc
+      .font("Helvetica")
+      .fontSize(10)
+      .text("Transactr", { align: "right" })
+      .fontSize(8)
+      .text("123 Main Street", { align: "right" })
+      .text("New York, NY, 10025", { align: "right" })
+      .moveDown(3);
   } catch (error) {
     console.error(error.message);
   }
@@ -252,13 +257,14 @@ function generateHeader(doc) {
 function generateFooter(doc, transaction) {
   try {
     doc
-      .fontSize(7)
-      .text(
-        `Transaction prepared by ${transaction.user} on ${transaction.date}`,
-        50,
-        780,
-        { align: "center", width: 500 }
-      );
+    .fontSize(6)
+    .text(
+      `Transaction prepared by ${transaction.user} on ${transaction.date}`,
+      50,
+      720,
+      { align: "center", width: 500 }
+    );
+
   } catch (error) {
     console.error(error.message);
   }  
@@ -268,9 +274,9 @@ function generateCustomerInformation(doc, transaction) {
   try {
     doc
     .moveDown()
+    .fontSize(12)
     .text("Customer Information").moveDown()
     .text(transaction.company).moveDown()
-
     .text(`${transaction.firstName} ${transaction.lastName}`).moveDown()
     .text(`${transaction.address1} ${transaction.address2}`).moveDown()
     .text(`${transaction.city}, ${transaction.state}, ${transaction.zip}`).moveDown()
@@ -285,6 +291,7 @@ function generateTransactionDetails(doc, transaction) {
   try {
     doc
     .moveDown()
+    .fontSize(12)
     .text("Transaction Details").moveDown()
     .text(`Detail 1: ${transaction.detail1}`).moveDown()
     .text(`Detail 2: ${transaction.detail2}`).moveDown()
